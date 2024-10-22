@@ -13,14 +13,23 @@ public class JokesRepository {
     @Inject
     Mutiny.SessionFactory sessionFactory;
 
-    // Save OfficialJoke reactively
     public Uni<Void> saveOfficialJoke(OfficialJokes joke) {
-        return sessionFactory.withTransaction((session, transaction) ->
-                session.persist(joke)
-        ).replaceWithVoid(); // Use replaceWithVoid() to return Uni<Void>
+        return sessionFactory.withTransaction((session, transaction) -> {
+            return session.createQuery("SELECT COUNT(j) FROM OfficialJokes j WHERE j.id = :id", Long.class)
+                    .setParameter("id", joke.getId())
+                    .getSingleResult()
+                    .onItem().transform(existingIdCount -> {
+                        if (existingIdCount > 0) {
+                            return Uni.createFrom().voidItem();
+                        }
+                        session.persist(joke);
+                        return Uni.createFrom().voidItem();
+                    });
+        }).flatMap(result -> result);
     }
 
-    // Save or update JokesAPI reactively
+
+
     public Uni<Void> saveJokeAPI(JokesAPI jokeAPI) {
         return sessionFactory.withTransaction((session, transaction) -> {
             if (jokeAPI.getId() != null) {
@@ -28,14 +37,13 @@ public class JokesRepository {
                 return session.find(JokesAPI.class, jokeAPI.getId())
                         .onItem().transformToUni(existing -> {
                             if (existing != null) {
-                                return session.merge(jokeAPI).replaceWithVoid(); // Update and convert to Uni<Void>
+                                return session.merge(jokeAPI).replaceWithVoid();
                             } else {
-                                return session.persist(jokeAPI).replaceWithVoid(); // Create new and convert to Uni<Void>
+                                return session.persist(jokeAPI).replaceWithVoid();
                             }
                         });
             } else {
-                // If the ID is not set, persist it (create)
-                return session.persist(jokeAPI).replaceWithVoid(); // Create new and convert to Uni<Void>
+                return session.persist(jokeAPI).replaceWithVoid();
             }
         });
     }

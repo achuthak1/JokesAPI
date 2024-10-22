@@ -1,15 +1,14 @@
-package org.jokes.service;
+package org.jokes.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.reactive.streams.operators.spi.Stage;
 import org.jokes.dto.JokesResponseDTO;
 import org.jokes.entity.JokesAPI;
 import org.jokes.entity.OfficialJokes;
 import org.jokes.repository.JokesRepository;
+import org.jokes.service.JokesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @ApplicationScoped
-public class JokesServiceImpl {
+public class JokesServiceImpl implements JokesService {
 
     private static final Logger log = LoggerFactory.getLogger(JokesServiceImpl.class);
 
@@ -44,15 +43,13 @@ public class JokesServiceImpl {
             }
         }).onItem().transformToUni(apiResponse -> {
             //apiResponse.setJokesid(String.valueOf(apiResponse.getId()));
-            // Save the official joke reactively
             return jokesRepository.saveOfficialJoke(apiResponse)
                     .onItem().transformToUni(v -> {
-                        // This part now returns a Uni<JokesResponseDTO> correctly
                         JokesResponseDTO customResponse = formResponse(apiResponse);
                         JokesAPI jokesAPIEntity = new JokesAPI(customResponse.getId(), customResponse.getQuestion(), customResponse.getAnswer(), apiResponse);
 
                         return jokesRepository.saveJokeAPI(jokesAPIEntity)
-                                .onItem().transform(vv -> customResponse); // Ensure this returns the customResponse
+                                .onItem().transform(vv -> customResponse);
                     });
         });
     }

@@ -1,4 +1,4 @@
-package com.jokes.test;
+package com.jokes.test.controller;
 
 import io.quarkus.test.junit.QuarkusTest;
 //import io.rest-assured.RestAssured;
