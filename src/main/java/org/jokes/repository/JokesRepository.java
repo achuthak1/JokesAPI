@@ -5,7 +5,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.hibernate.reactive.mutiny.Mutiny;
 import org.jokes.entity.JokesAPI;
-import org.jokes.entity.OfficialJokes;
 
 @ApplicationScoped
 public class JokesRepository {
@@ -13,7 +12,7 @@ public class JokesRepository {
     @Inject
     Mutiny.SessionFactory sessionFactory;
 
-    public Uni<Void> saveOfficialJoke(OfficialJokes joke) {
+    /*public Uni<Void> saveOfficialJoke(OfficialJokes joke) {
         return sessionFactory.withTransaction((session, transaction) -> {
             return session.createQuery("SELECT COUNT(j) FROM OfficialJokes j WHERE j.id = :id", Long.class)
                     .setParameter("id", joke.getId())
@@ -26,7 +25,7 @@ public class JokesRepository {
                         return Uni.createFrom().voidItem();
                     });
         }).flatMap(result -> result);
-    }
+    }*/
 
 
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import org.jokes.dto.JokesResponseDTO;
 import org.jokes.entity.JokesAPI;
-import org.jokes.entity.OfficialJokes;
+import org.jokes.model.JokesAPIResponseModel;
 import org.jokes.repository.JokesRepository;
 import org.jokes.service.impl.JokesServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class JokesServiceImplTest {
 
     @Test
     void testCallJokesAPIMocked() {
-        OfficialJokes mockedJoke = new OfficialJokes();
+        JokesAPIResponseModel mockedJoke = new JokesAPIResponseModel();
         mockedJoke.setSetup("Why did the chicken cross the road?");
         mockedJoke.setPunchline("To get to the other side.");
 

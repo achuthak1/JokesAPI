@@ -31,6 +31,6 @@ public class JokesControllerIntegrationTest {
                 .when().get("/jokes")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode())
-                .body(equalTo("Count must be greater than zero."));
+                .body(equalTo("Error fetching jokes: Count must be greater than zero."));
     }
 }

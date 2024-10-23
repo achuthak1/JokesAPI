@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jokes.dto.JokesResponseDTO;
 import org.jokes.entity.JokesAPI;
-import org.jokes.entity.OfficialJokes;
+import org.jokes.model.JokesAPIResponseModel;
 import org.jokes.repository.JokesRepository;
 import org.jokes.service.JokesService;
 import org.slf4j.Logger;
@@ -30,32 +30,29 @@ public class JokesServiceImpl implements JokesService {
     public Uni<JokesResponseDTO> callJokesAPI() {
         HttpClient httpClient = HttpClient.newHttpClient();
         ObjectMapper objectMapper = new ObjectMapper();
+
         return Uni.createFrom().item(() -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("https://official-joke-api.appspot.com/random_joke"))
                         .build();
-
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                return objectMapper.readValue(response.body(), OfficialJokes.class);
+                return objectMapper.readValue(response.body(), JokesAPIResponseModel.class);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).onItem().transformToUni(apiResponse -> {
-            //apiResponse.setJokesid(String.valueOf(apiResponse.getId()));
-            return jokesRepository.saveOfficialJoke(apiResponse)
-                    .onItem().transformToUni(v -> {
                         JokesResponseDTO customResponse = formResponse(apiResponse);
-                        JokesAPI jokesAPIEntity = new JokesAPI(customResponse.getId(), customResponse.getQuestion(), customResponse.getAnswer(), apiResponse);
+                        JokesAPI jokesAPIEntity = new JokesAPI(customResponse.getId(), customResponse.getQuestion(), customResponse.getAnswer());
 
                         return jokesRepository.saveJokeAPI(jokesAPIEntity)
                                 .onItem().transform(vv -> customResponse);
-                    });
         });
     }
 
 
-    public JokesResponseDTO formResponse(OfficialJokes apiResponse) {
+
+    public JokesResponseDTO formResponse(JokesAPIResponseModel apiResponse) {
         String uuid = UUID.randomUUID().toString();
         return new JokesResponseDTO(uuid, apiResponse.getSetup(), apiResponse.getPunchline());
     }

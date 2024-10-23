@@ -18,10 +18,6 @@ public class JokesAPI extends PanacheEntityBase {
     private String question;
     private String answer;
 
-    @OneToOne
-    @JoinColumn(name = "official_id", referencedColumnName = "jokesid")
-    private OfficialJokes officialJoke;
-
     // Getters and setters
 
     public String getId() {
@@ -46,13 +42,5 @@ public class JokesAPI extends PanacheEntityBase {
 
     public void setAnswer(String answer) {
         this.answer = answer;
-    }
-
-    public OfficialJokes getOfficialJoke() {
-        return officialJoke;
-    }
-
-    public void setOfficialJoke(OfficialJokes officialJoke) {
-        this.officialJoke = officialJoke;
     }
 }
